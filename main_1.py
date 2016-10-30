@@ -21,6 +21,32 @@ df = pd.read_sql('''SELECT *
 # this gets run when I'm done working for the session
 conn.close()
 
+###############################################
+mens, womens = {},{}
+for squat in sorted(df.squat_class.unique()):
+    x = df[df.squat_class == squat]
+    men = x[x.sex == 'M']
+    women = x[x.sex == 'W']
+    mens[squat] = [men.best_squat.mean(), men.best_bench.mean(), men.best_deadlift.mean()]
+    womens[squat] = [women.best_squat.mean(), women.best_bench.mean(), women.best_deadlift.mean()]
+
+df_men = df[df.sex == 'M']
+mens_array = np.array([mens[squat] for squat in df_men.squat_class])
+
+df_women = df[df.sex == 'W']
+womens_array = np.array([womens[squat] for squat in df_women.squat_class])
+
+df_men.loc[:,('average_squat')] = mens_array[:,0]
+df_men.loc[:,('average_bench')] = mens_array[:,1]
+df_men.loc[:,('average_deadlift')] = mens_array[:,2]
+
+df_women.loc[:,('average_squat')] = womens_array[:,0]
+df_women.loc[:,('average_bench')] = womens_array[:,1]
+df_women.loc[:,('average_deadlift')] = womens_array[:,2]
+
+df = pd.concat([df_men,df_women])
+#######################################
+
 columns = sorted(df.columns)
 discrete = [x for x in columns if df[x].dtype == object]
 continuous = [x for x in columns if x not in discrete]
