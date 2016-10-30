@@ -1,7 +1,8 @@
 import pandas as pd
+import numpy as np
 
 from bokeh.layouts import row, widgetbox
-from bokeh.models import Select
+from bokeh.models import Select, HoverTool
 from bokeh.palettes import Spectral5
 from bokeh.plotting import curdoc, figure
 from bokeh.sampledata.autompg import autompg
@@ -20,15 +21,11 @@ df = pd.read_sql('''SELECT *
 # this gets run when I'm done working for the session
 conn.close()
 
-df.loc[df.sex == 'M', 'sex'] = 1
-df.loc[df.sex == 'W', 'sex'] = 0
-df.sex = df.sex.astype(int)
-
 columns = sorted(df.columns)
 discrete = [x for x in columns if df[x].dtype == object]
 continuous = [x for x in columns if x not in discrete]
-# quantileable = [x for x in continuous if len(df[x].unique()) > 20]
-quantileable = [x for x in continuous if len(df[x].unique()) > 1]
+quantileable = [x for x in continuous if len(df[x].unique()) > 20]
+quantileable.append('sex')
 
 
 def create_figure():
@@ -44,7 +41,10 @@ def create_figure():
         kw['y_range'] = sorted(set(ys))
     kw['title'] = "%s vs %s" % (x_title, y_title)
 
-    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,reset', **kw)
+    # hover = HoverTool(tooltips=[("Lifter", "@df.lifter"),("Team", "@df.team"),("Total", "@df.total")])
+    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,reset,hover', **kw)
+    # p.add_tools(hover)
+
     p.xaxis.axis_label = x_title
     p.yaxis.axis_label = y_title
 
@@ -53,13 +53,20 @@ def create_figure():
 
     sz = 9
     if size.value != 'None':
-        groups = pd.qcut(df[size.value].values, len(SIZES))
-        sz = [SIZES[xx] for xx in groups.codes]
+        if size.value == 'sex':
+            sz = [15 if person =='M' else 6 for person in df[size.value].values]
+        else:
+            groups = pd.qcut(df[size.value].values, len(SIZES))
+            sz = [SIZES[xx] for xx in groups.codes]
 
     c = "#31AADE"
     if color.value != 'None':
-        groups = pd.qcut(df[color.value].values, len(COLORS))
-        c = [COLORS[xx] for xx in groups.codes]
+        if color.value == 'sex':
+            c = ['#2b83ba' if person =='M' else '#d7191c' for person in df[color.value].values]
+        else:
+            groups = pd.qcut(df[color.value].values, len(COLORS))
+            c = [COLORS[xx] for xx in groups.codes]
+
     p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
     return p
