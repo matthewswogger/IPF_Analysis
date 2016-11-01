@@ -69,7 +69,7 @@ def create_figure():
 
     hover = HoverTool(tooltips=[("Lifter", "@lifter"),("Comp year", "@year"),
                                 ("Team", "@team"),("Body weight", "@body_weight")])
-    p = figure(plot_height=700, plot_width=1000, tools='pan,box_zoom,reset', **kw)
+    p = figure(plot_height=700, plot_width=1000, tools='pan,box_zoom,reset,save', **kw)
     p.add_tools(hover)
 
     p.xaxis.axis_label = x_title
@@ -96,7 +96,9 @@ def create_figure():
 
     source = ColumnDataSource(df[['lifter','year','team','body_weight']])
     p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6,
-                                    hover_color='white', hover_alpha=0.5, source=source)
+                                    hover_color='white', hover_alpha=0.5, source=source,legend='hellow')
+    # p.add_layout(legend, 'right')
+    p.legend.location = "top_right"
 
     return p
 
@@ -121,4 +123,4 @@ controls = widgetbox([x, y, color, size], width=150)
 layout = row(controls, create_figure())
 
 curdoc().add_root(layout)
-curdoc().title = "Crossfilter"
+curdoc().title = "IPF Analysis"
