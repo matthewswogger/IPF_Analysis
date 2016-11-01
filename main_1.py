@@ -4,7 +4,7 @@ import numpy as np
 from bokeh.layouts import row, widgetbox
 from bokeh.models import Select, HoverTool
 from bokeh.palettes import Spectral5
-from bokeh.plotting import curdoc, figure
+from bokeh.plotting import curdoc, figure, ColumnDataSource
 from bokeh.sampledata.autompg import autompg
 
 SIZES = list(range(6, 22, 3))
@@ -67,9 +67,10 @@ def create_figure():
         kw['y_range'] = sorted(set(ys))
     kw['title'] = "%s vs %s" % (x_title, y_title)
 
-    # hover = HoverTool(tooltips=[("Lifter", "@df.lifter"),("Team", "@df.team"),("Total", "@df.total")])
-    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,reset,hover', **kw)
-    # p.add_tools(hover)
+    hover = HoverTool(tooltips=[("Lifter", "@lifter"),("Comp year", "@year"),
+                                ("Team", "@team"),("Body weight", "@body_weight")])
+    p = figure(plot_height=700, plot_width=1000, tools='pan,box_zoom,reset', **kw)
+    p.add_tools(hover)
 
     p.xaxis.axis_label = x_title
     p.yaxis.axis_label = y_title
@@ -93,7 +94,9 @@ def create_figure():
             groups = pd.qcut(df[color.value].values, len(COLORS))
             c = [COLORS[xx] for xx in groups.codes]
 
-    p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
+    source = ColumnDataSource(df[['lifter','year','team','body_weight']])
+    p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6,
+                                    hover_color='white', hover_alpha=0.5, source=source)
 
     return p
 
@@ -114,7 +117,7 @@ size.on_change('value', update)
 color = Select(title='Color', value='None', options=['None'] + quantileable)
 color.on_change('value', update)
 
-controls = widgetbox([x, y, color, size], width=200)
+controls = widgetbox([x, y, color, size], width=150)
 layout = row(controls, create_figure())
 
 curdoc().add_root(layout)
