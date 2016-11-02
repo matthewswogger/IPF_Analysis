@@ -95,10 +95,11 @@ def create_figure():
             c = [COLORS[xx] for xx in groups.codes]
 
     source = ColumnDataSource(df[['lifter','year','team','body_weight']])
+    Legend = '''Color: {} Size : {}'''.format(color.value,size.value)
     p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6,
-                                    hover_color='white', hover_alpha=0.5, source=source,legend='hellow')
-    # p.add_layout(legend, 'right')
-    p.legend.location = "top_right"
+                                    hover_color='white', hover_alpha=0.5, source=source,
+                                    legend=Legend)
+    p.legend.location = "top_left"
 
     return p
 
