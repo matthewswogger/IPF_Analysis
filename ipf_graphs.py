@@ -1,26 +1,22 @@
 import pandas as pd
 import numpy as np
+import sqlite3
 
 from bokeh.layouts import row, widgetbox
 from bokeh.models import Select, HoverTool
 from bokeh.palettes import Spectral5
 from bokeh.plotting import curdoc, figure, ColumnDataSource
-from bokeh.sampledata.autompg import autompg
 
 SIZES = list(range(6, 22, 3))
 COLORS = Spectral5
 
-import sqlite3
-
+##############################################
 conn = sqlite3.connect('IPF_data.db')
 c = conn.cursor()
 
 df = pd.read_sql('''SELECT *
                     FROM classic''', conn)
-
-# this gets run when I'm done working for the session
 conn.close()
-
 ###############################################
 mens, womens = {},{}
 for squat in sorted(df.squat_class.unique()):
@@ -125,3 +121,30 @@ layout = row(controls, create_figure())
 
 curdoc().add_root(layout)
 curdoc().title = "IPF Analysis"
+###################################################################################
+# from jinja2 import Template
+# from bokeh.resources import JSResources, CDN
+# from bokeh.embed import file_html
+# from bokeh.util.browser import view
+
+# # Open our custom template
+# with open('index.html', 'r') as f:
+#     template = Template(f.read())
+#
+# # Use inline resources, render the html and open
+# js_resources = JSResources(mode='inline')
+#
+# title = "IPF Analysis"
+# html = file_html(layout, resources=CDN, title=title, template=template)
+#
+# output_file = 'IPF.html'
+# with open(output_file, 'w') as f:
+#     f.write(html)
+# view(output_file)
+
+
+
+# from bokeh.io import output_file, save
+
+# html = output_file('IPF', title='IPF Men Women Analysis', autosave=False, mode='inline', root_dir=None)
+# save(obj=layout,filename='IPF.html',title='IPF Men Women Analysis')
