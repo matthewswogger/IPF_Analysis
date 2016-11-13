@@ -121,6 +121,13 @@ layout = row(controls, create_figure())
 
 curdoc().add_root(layout)
 curdoc().title = "IPF Analysis"
+
+from bokeh.resources import CDN
+from bokeh.embed import file_html
+
+html = file_html(layout, CDN, "my plot")
+print '#'*100
+print html
 ###################################################################################
 # from jinja2 import Template
 # from bokeh.resources import JSResources, CDN
